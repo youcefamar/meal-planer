@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "774096063296",
+    "project_id": "tpdeappmobile",
+    "storage_bucket": "tpdeappmobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774096063296:android:d21c27d6a4f72b5070c8a5",
+        "android_client_info": {
+          "package_name": "com.example.tpp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIUgwA4QYypkk7VapdH9dt-DbIBXL-Xns"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
