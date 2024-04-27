@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:tp/models/day_meals.dart';
 import 'package:tp/models/days_card.dart';
@@ -32,18 +31,10 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                GoogleSignIn googleSignIn = GoogleSignIn();
-                googleSignIn.disconnect();
-                Navigator.pushNamed(context, 'Login_Page');
+                Navigator.pushNamedAndRemoveUntil(
+                    context, 'Login_Page', (route) => false);
               },
-              icon: Icon(Icons.logout)),
-          IconButton(
-              onPressed: () async {
-                GoogleSignIn googleSignIn = GoogleSignIn();
-                googleSignIn.disconnect();
-                Navigator.pushNamed(context, 'Login_Page');
-              },
-              icon: Icon(Icons.outbond))
+              icon: const Icon(Icons.exit_to_app)),
         ],
         centerTitle: true,
         title: const Text(

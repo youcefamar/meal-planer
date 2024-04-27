@@ -114,14 +114,28 @@ class _AddNewMealPageState extends State<AddNewMealPage> {
                   myButtonLabel: 'Add',
                   MyOnpressedFct: () {
                     if (myFormState.currentState!.validate()) {
-                      print("Valide");
-                      Meal _meal = Meal(
-                        name: _mealnameConroller.text,
-                        imgPath: _imgPathConroller.text,
-                      );
-                      Navigator.pop(context, _meal);
+                      if (_myTextfieldlist.isNotEmpty) {
+                        print("Valid");
+                        // Extract ingredient names from MyTextField widgets and filter out null values
+                        List<String> ingredientNames = _myTextfieldlist
+                            .map((textField) => textField.myController?.text)
+                            .where((text) => text != null)
+                            .map((text) => text!)
+                            .toList();
+
+                        // Create a new Meal object using the extracted data
+                        Meal _meal = Meal(
+                          name: _mealnameConroller.text,
+                          imgPath: _imgPathConroller.text,
+                          listOfIngredient: ingredientNames,
+                        );
+
+                        Navigator.pop(context, _meal);
+                      } else {
+                        print("Please enter at least one ingredient.");
+                      }
                     } else {
-                      print("Not Valide");
+                      print("Not Valid");
                     }
                   }),
             ],

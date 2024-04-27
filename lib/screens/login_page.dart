@@ -1,6 +1,8 @@
 // ignore_for_file: must_be_immutable
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tp/my_button.dart';
 import 'package:tp/my_textfield.dart';
@@ -10,20 +12,6 @@ class LoginPage extends StatelessWidget {
   final _emailcontroller = TextEditingController();
 
   final _passwordcontroller = TextEditingController();
-  void _Signin() async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: "myEmail", password: "myPWD");
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'invalid-email') {
-        print('Invalid Email');
-      } else if (e.code == 'invalid-credential') {
-        print('user-not-found OR Wrong Password');
-      } else {
-        print('Failed to login with error code: ${e.code}, ${e.message}');
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +39,7 @@ class LoginPage extends StatelessWidget {
                   height: 75,
                 ),
                 MyTextField(
-                  myHintText: "Username",
+                  myHintText: "Email",
                   isObscure: false,
                   myController: _emailcontroller,
                   myIcon: const Icon(Icons.person),
@@ -70,13 +58,31 @@ class LoginPage extends StatelessWidget {
                 ),
                 MyButton(
                     myButtonLabel: "login",
-                    MyOnpressedFct: () {
-                      if (myFormState.currentState!.validate()) {
-                        print("Valide");
-
+                    MyOnpressedFct: () async {
+                      if (_emailcontroller.text != '') {
+                        try {
+                          final credential = await FirebaseAuth.instance
+                              .signInWithEmailAndPassword(
+                                  email: _emailcontroller.text,
+                                  password: _passwordcontroller.text);
+                        } on FirebaseAuthException catch (e) {
+                          if (e.code == 'user-not-found') {
+                            print('No user found for that email.');
+                          } else if (e.code == 'wrong-password') {
+                            print('Wrong password provided for that user.');
+                          }
+                        }
                         Navigator.pushNamed(context, 'Home_page');
+                        _emailcontroller.clear();
+                        _passwordcontroller.clear();
                       } else {
-                        print("Not Valide");
+                        AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.leftSlide,
+                                title: 'error',
+                                desc: 'entre your email and password')
+                            .show();
                       }
                     }),
                 const SizedBox(
@@ -84,7 +90,40 @@ class LoginPage extends StatelessWidget {
                 ),
                 MyTextButton(
                     myButtonlabel: "Forgot you're password?",
-                    MyOnpressedFct: () {}),
+                    MyOnpressedFct: () async {
+                      if (_emailcontroller.text == "") {
+                        AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.leftSlide,
+                                title: 'error',
+                                desc:
+                                    'entre your email first to reset your password')
+                            .show();
+                      } else {
+                        try {
+                          await FirebaseAuth.instance.sendPasswordResetEmail(
+                              email: _emailcontroller.text);
+                        } catch (e) {
+                          AwesomeDialog(
+                                  context: context,
+                                  dialogType: DialogType.error,
+                                  animType: AnimType.leftSlide,
+                                  title: 'error',
+                                  desc:
+                                      'the email is not valid please check it again')
+                              .show();
+                        }
+                        AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.success,
+                                animType: AnimType.leftSlide,
+                                title: 'Success',
+                                desc:
+                                    'Please check your email for rest your password')
+                            .show();
+                      }
+                    }),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -95,8 +134,7 @@ class LoginPage extends StatelessWidget {
                     MyTextButton(
                         myButtonlabel: "SignUp",
                         MyOnpressedFct: () {
-                          _Signin();
-                          Navigator.pushNamed(context, 'Sign_page');
+                          Navigator.pushReplacementNamed(context, 'Sign_page');
                         }),
                   ],
                 )

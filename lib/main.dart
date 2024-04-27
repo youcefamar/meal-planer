@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tp/AuthPage.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:tp/meal.dart';
 import 'package:tp/models/add_new_meal_page.dart';
+import 'package:tp/models/day_meals.dart';
 import 'package:tp/screens/details_page.dart';
 import 'package:tp/screens/login_page.dart';
 import 'package:tp/screens/signup_page.dart';
@@ -11,6 +15,12 @@ import 'screens/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(MealAdapter());
+  Hive.registerAdapter(DayMealsAdapter());
+
+  //var mybox = await Hive.openBox<DayMeals>('DayMeals');
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -26,9 +36,21 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user == null) {
+        print('=============User is currently signed out!');
+      } else {
+        print('************User is signed in!');
+      }
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My Meal Planner ',
+      title: 'My Meal Planner',
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.blue,
@@ -40,7 +62,9 @@ class _MyAppState extends State<MyApp> {
           iconTheme: IconThemeData(color: Colors.black),
         ),
       ),
-      home: AuthPage(),
+      home: FirebaseAuth.instance.currentUser == null
+          ? LoginPage()
+          : MyHomePage(),
       routes: {
         'DetailsPage': (contex) => DetailsPage(),
         'AddMealPage': (contex) => AddNewMealPage(),

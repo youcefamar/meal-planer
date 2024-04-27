@@ -1,10 +1,42 @@
 // ignore_for_file: must_be_immutable
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tp/my_button.dart';
 import 'package:tp/my_textfield.dart';
+
+String? myValidateEmailFct(String? value) {
+  const pattern =
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
+
+  final regex = RegExp(pattern);
+  if (value!.isEmpty) {
+    return "Email Can't be empty ";
+  } else if (!regex.hasMatch(value)) {
+    return 'Enter a valid email address';
+  }
+  return null;
+}
+
+String? myValidatePwdFct(String? value) {
+  const pattern = r'^(?=.*[A-Z])(?=.*?[0-9])(?=.*?[ @#\&*~]) .{8,}';
+  final regex = RegExp(pattern);
+  if (value!.isEmpty) {
+    return "Password Can't be empty ";
+  } else if (!regex.hasMatch(value)) {
+    return 'The password must be at least 8 characters \n and should contain at least one upper case, \n one digit, one special character among (@#\&*~)';
+  }
+  return null;
+}
+
+String? myValidateConfirmePwdFct(String? value, String? text) {
+  if (value != text) {
+    return 'not the same';
+  }
+  return null;
+}
 
 class SignUp extends StatelessWidget {
   GlobalKey<FormState> myFormState = GlobalKey<FormState>();
@@ -80,26 +112,27 @@ class SignUp extends StatelessWidget {
                     isObscure: false,
                     myController: _emailConroller,
                     myIcon: const Icon(Icons.email),
-                    myValidator: null),
+                    myValidator: myValidateEmailFct),
                 const SizedBox(
                   height: 8,
                 ),
                 MyTextField(
                   myHintText: "Password",
-                  isObscure: false,
+                  isObscure: true,
                   myController: _passwordConroller,
                   myIcon: const Icon(Icons.lock),
-                  myValidator: null,
+                  myValidator: myValidatePwdFct,
                 ),
                 const SizedBox(
                   height: 8,
                 ),
                 MyTextField(
                   myHintText: "Confirme Password",
-                  isObscure: false,
+                  isObscure: true,
                   myController: _ConfirmePasswordConroller,
                   myIcon: const Icon(Icons.lock),
-                  myValidator: null,
+                  myValidator: (value) => myValidateConfirmePwdFct(
+                      value, _ConfirmePasswordConroller.text),
                 ),
                 const SizedBox(
                   height: 30,
@@ -107,12 +140,17 @@ class SignUp extends StatelessWidget {
                 MyButton(
                     myButtonLabel: "SignUp",
                     MyOnpressedFct: () {
-                      if (myFormState.currentState!.validate()) {
-                        print("Valide");
+                      if (_emailConroller != "") {
                         _register();
-                        Navigator.pushNamed(context, 'Home_page');
+                        Navigator.pushReplacementNamed(context, 'Home_page');
                       } else {
-                        print("Not Valide");
+                        AwesomeDialog(
+                                context: context,
+                                dialogType: DialogType.error,
+                                animType: AnimType.leftSlide,
+                                title: 'Error',
+                                desc: 'please try again!!')
+                            .show();
                       }
                     }),
                 const SizedBox(

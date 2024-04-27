@@ -1,7 +1,9 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
 import 'package:tp/meal.dart';
 import 'package:tp/models/day_meals.dart';
 
@@ -41,7 +43,10 @@ class DayCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 InkWell(
-                  onTap: () {
+                  onTap: () async {
+                    //final DayMeals dayMeals = mybox.get('daymeals');
+                    //dayAndItsMealsList = dayMeals;
+
                     Navigator.pushNamed(context, 'DetailsPage',
                         arguments: dayAndItsMealsList);
                   },
@@ -59,8 +64,23 @@ class DayCard extends StatelessWidget {
                     Meal? _meal =
                         await Navigator.pushNamed(context, 'AddMealPage')
                             as Meal?;
-                    if (_meal != null)
-                      dayAndItsMealsList.listOfMeals!.add(_meal);
+                    if (_meal != null) {
+                      dayAndItsMealsList.listOfMeals?.add(_meal);
+                    }
+                    var mybox = await Hive.openBox<DayMeals>('daymeals');
+
+                    DayMeals dayMeals1 = DayMeals(
+                        day: dayAndItsMealsList.day,
+                        listOfMeals: dayAndItsMealsList.listOfMeals);
+                    mybox.add(dayMeals1);
+                    dayMeals1.save();
+
+                    //mybox.put('day', dayAndItsMealsList.day);
+                    //mybox.put('MealList', dayAndItsMealsList.listOfMeals!);
+                    //print(mybox.get('day'));
+
+                    //List<Meal> list = mybox.get('MealList');
+                    //print(list);
                   },
                   child: const Icon(
                     Icons.add,
